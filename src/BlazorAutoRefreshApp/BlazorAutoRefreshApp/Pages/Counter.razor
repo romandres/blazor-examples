@@ -1,0 +1,43 @@
+﻿@page "/counter"
+
+@using BlazorAutoRefreshApp.Data;
+
+@inject CounterService CounterService;
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @CurrentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Count Up</button>
+<button class="btn btn-primary" @onclick="DecreaseCount">Count Down</button>
+
+@code {
+    private int CurrentCount { get => CounterService.Count; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // Subscribe to be notified about any changes to the Count value.
+        CounterService.CountChanged += async (s, e) =>
+        {
+            // Notify the component that the state has changed.
+            // This is only required if the Count value was modified from another user session.
+            // If the Count value is modified within this component in the same user session,
+            // the state change is detected automatically.
+            await InvokeAsync(() => StateHasChanged());
+        };
+    }
+
+    private void IncrementCount()
+    {
+        CounterService.CountUp();
+    }
+
+    private void DecreaseCount()
+    {
+        CounterService.CountDown();
+    }
+}
